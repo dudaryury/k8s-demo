@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backend
+  name: backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - image: docker.io/library/com.dudar.yury:0.0.5-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          name: backend
+          resources:
+            requests:
+              cpu: "1.0"
+              memory: "1G"
+            limits:
+              cpu: "1.0"
+              memory: "1G"
+          env:
+            #add env variable from config-map
+            - name: HELLO_DEFAULT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config-v1
+                  key: defaultName
+            #add db-password as k8s secret in pod
+            - name: SPRING_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-passwd
+                  key: passwd
